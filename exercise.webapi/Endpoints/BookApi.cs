@@ -17,6 +17,8 @@ namespace exercise.webapi.Endpoints
             books.MapPut("/update/{bookid}/{authorid}", UpdateBook);
             books.MapDelete("/delete/{id}", DeleteBook);
             books.MapPost("/create/", CreateBook);
+            books.MapPut("/deleteauthor/{id}", DeleteAuthorFromBook);
+            books.MapPut("/addauthor/{bookid}/{authorid}", AddAuthorToBook);
 
         }
 
@@ -81,6 +83,26 @@ namespace exercise.webapi.Endpoints
                 return TypedResults.NotFound();
 
             return TypedResults.Created();
+        }
+
+        public static async Task<IResult> DeleteAuthorFromBook(IBookRepository bookRepository, int bookId)
+        {
+            bool answer = bookRepository.DeleteAuthorFromBook(bookId).Result;
+
+            if(!answer)
+                return TypedResults.NotFound("Book doesnt exist");
+
+            return TypedResults.Ok();
+        }
+
+        public static async Task<IResult> AddAuthorToBook(IBookRepository bookRepository, int bookId, int authorId)
+        {
+            bool answer = bookRepository.AddAuthorToBook(bookId, authorId).Result;
+
+            if (!answer)
+                return TypedResults.NotFound("Book or author doesnt exist");
+
+            return TypedResults.Ok();
         }
 
         private static GetBook turnToDTO(Book book)

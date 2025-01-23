@@ -74,5 +74,40 @@ namespace exercise.webapi.Repository
 
             return book;
         }
+
+        public async Task<bool> DeleteAuthorFromBook(int bookId)
+        {
+            Book book = await _db.Books.Include(b => b.Author).SingleOrDefaultAsync(x => x.Id == bookId);
+            var temp = _db.Books.Update(book);
+
+            if (book == null) return false;
+
+            temp.Entity.Author = null;
+            temp.Entity.AuthorId = null;
+
+            await _db.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> AddAuthorToBook(int bookId, int authorId)
+        {
+            Book book = await _db.Books.Include(a => a.Author).SingleOrDefaultAsync(x => x.Id == bookId);
+            var temp = _db.Books.Update(book);
+
+            if (book == null) return false;
+
+            Author auth = await _db.Authors.Include(b => b.Books).SingleOrDefaultAsync(x => x.Id == authorId);
+
+            if(auth == null) return false;
+
+            temp.Entity.Author = auth;
+            temp.Entity.AuthorId = auth.Id;
+
+
+            await _db.SaveChangesAsync();
+
+            return true;
+        }
     }
 }
